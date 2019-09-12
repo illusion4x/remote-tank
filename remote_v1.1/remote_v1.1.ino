@@ -17,7 +17,7 @@ int pwm1_mid =0;
 #define base_speed_max 80
 #define dir_speed_max 20
 
-#define motor_speed_max 170
+#define motor_speed_max 150
 #define motor_speed_min 20
 
 #define IN1 12
@@ -86,7 +86,7 @@ void loop() {
     speed_base = -base_speed_max;
   }
   else{
-    speed_base = map(pwm0_t - pwm0_mid, -400 , 400, -base_speed_max , base_speed_max);
+    speed_base = map(pwm0_t - pwm0_mid, -pwm_div_max , pwm_div_max, -base_speed_max , base_speed_max);
   }
 
   if(pwm1_t - pwm1_mid > 400){
@@ -96,18 +96,22 @@ void loop() {
     speed_dir = -dir_speed_max;
   }
   else{
-    speed_dir = map(pwm1_t - pwm1_mid, -400 , 400, -dir_speed_max , dir_speed_max);
+    speed_dir = map(pwm1_t - pwm1_mid, -pwm_div_max , pwm_div_max, -dir_speed_max , dir_speed_max);
   }
-  speed_a = map(speed_base+speed_dir,-100,100,-150,150);
-  speed_b = map(speed_base-speed_dir,-100,100,-150,150);
 
+  speed_a = map(speed_base+speed_dir,-dir_speed_max-base_speed_max,dir_speed_max+base_speed_max,-motor_speed_max,motor_speed_max);
+  speed_b = map(speed_base-speed_dir,-dir_speed_max-base_speed_max,dir_speed_max+base_speed_max,-motor_speed_max,motor_speed_max);
+
+  //滤波
   if(speed_a < -5 ) speed_a -= 20;
   else if(speed_a > 5) speed_a += 20;
   else speed_a = 0;
-  
+
+  //滤波
   if(speed_b < -5) speed_b -= 20;
   else if(speed_b > 5) speed_b += 20;
   else speed_b = 0;
+  
   A_move(speed_a);
   B_move(speed_b);
   
